@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +47,7 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #5a5a7e;
         }
-
+        
         /* Define the professional input field style */
         .input-field {
             /* Applying Tailwind classes for clean, light-mode styling */
@@ -76,7 +77,7 @@
         /* Re-styling the select element focus to match inputs */
         #currency_select:focus {
             outline: none;
-            border-color: theme('colors.accent-green');
+            border-color: theme('colors.accent-green'); 
             box-shadow: 0 0 0 1px theme('colors.accent-green');
         }
     </style>
@@ -100,10 +101,10 @@
                 </select>
             </label>
         </div>
-
+        
         <!-- Input Fields Card --><div class="bg-dark-bg-3 p-5 rounded-xl shadow-inner-sm border border-gray-700 space-y-4">
             <!-- Input Group: Material Costs --><h2 class="text-accent-purple font-bold text-lg">Material & Print Time</h2>
-
+            
             <div class="grid grid-cols-2 gap-4">
                 <label for="spool_cost_total" class="block">
                     <span class="text-sm font-medium text-dark-text-secondary">Spool Cost (Total <span id="label-spool-cost">($)</span>)</span>
@@ -114,12 +115,12 @@
                     <span class="text-sm font-medium text-dark-text-secondary">Spool Weight (kg)</span>
                     <input type="number" id="spool_weight_kg" class="input-field" placeholder="(Required)">
                 </label>
-
+                
                 <label for="filament_weight_g" class="block">
                     <span class="text-sm font-medium text-dark-text-secondary">Filament Used (g)</span>
                     <input type="number" id="filament_weight_g" class="input-field" placeholder="(Required)">
                 </label>
-
+                
                 <label for="print_time_hours" class="block">
                     <span class="text-sm font-medium text-dark-text-secondary">Print Time (Hours)</span>
                     <input type="number" id="print_time_hours" class="input-field" placeholder="(Required)">
@@ -127,10 +128,10 @@
             </div>
 
             <!-- Input Group: Machine Cost Breakdown --><h2 class="text-accent-purple font-bold text-lg mt-6 pt-4 border-t border-gray-700">
-                Machine Depreciation & Utility Costs
+                Machine Depreciation & Utility Costs 
                 <span class="text-dark-text-secondary text-sm font-normal">(Optional)</span>
             </h2>
-
+            
             <div class="grid grid-cols-2 gap-4">
                 <label for="machine_purchase_cost" class="block">
                     <span class="text-sm font-medium text-dark-text-secondary">Machine Cost (Total <span id="label-machine-cost">($)</span>)</span>
@@ -141,7 +142,7 @@
                     <span class="text-sm font-medium text-dark-text-secondary">Machine Life (Hours)</span>
                     <input type="number" id="machine_life_hours" class="input-field" placeholder="(Optional)">
                 </label>
-
+                
                 <label for="max_power_consumption_watts" class="block">
                     <span class="text-sm font-medium text-dark-text-secondary">Max Power Consumption (Watts)</span>
                     <input type="number" id="max_power_consumption_watts" class="input-field" placeholder="(Optional)">
@@ -165,12 +166,12 @@
                     <span class="text-sm font-medium text-dark-text-secondary">Post-Process Labor (Hours)</span>
                     <input type="number" id="post_process_labor_hours" class="input-field" placeholder="(Required)">
                 </label>
-
+                
                 <label for="profit_margin_percent" class="block">
                     <span class="text-sm font-medium text-dark-text-secondary">Profit Margin (%)</span>
-                    <input type="number" id="profit_margin_percent" class="input-field" placeholder="(Required)">
+                    <input type="number" id="profit_margin_percent" class="input-field" placeholder="(Optional, default 0)">
                 </label>
-
+                
                 <div class="block"></div>
             </div>
 
@@ -195,7 +196,7 @@
         <!-- Results Area Card (Content is dynamically generated in JS) --><div id="results-container" class="bg-dark-bg-3 p-5 rounded-xl shadow-inner-sm border border-gray-700 space-y-4 hidden">
             <!-- Content will be injected here by calculateCost() -->
         </div>
-
+        
     </div>
 
     <script>
@@ -235,9 +236,11 @@
             document.getElementById('print_time_hours').placeholder = `(Required)`;
             document.getElementById('hourly_labor_rate').placeholder = `(Required)`;
             document.getElementById('post_process_labor_hours').placeholder = `(Required)`;
-            document.getElementById('profit_margin_percent').placeholder = `(Required)`;
+            
+            // PROFIT MARGIN IS NOW OPTIONAL
+            document.getElementById('profit_margin_percent').placeholder = `(Optional, default 0)`;
             document.getElementById('sales_tax_rate_percent').placeholder = `(Optional, default 0)`;
-
+            
             document.getElementById('machine_purchase_cost').placeholder = `(Optional)`;
             document.getElementById('machine_life_hours').placeholder = `(Optional)`;
             document.getElementById('max_power_consumption_watts').placeholder = `(Optional)`;
@@ -252,7 +255,7 @@
         function calculateCost() {
             // --- 1. Get Input Values ---
             const currencyCode = document.getElementById('currency_select').value;
-
+            
             // Get values (0 if empty or invalid)
             const spoolCostTotal = getFloatValue('spool_cost_total');
             const spoolWeightKg = getFloatValue('spool_weight_kg');
@@ -263,11 +266,11 @@
             const machineLifeHours = getFloatValue('machine_life_hours');
             const maxPowerConsumptionWatts = getFloatValue('max_power_consumption_watts');
             const costPerKWH = getFloatValue('cost_per_kwh');
-
+            
             const hourlyLaborRate = getFloatValue('hourly_labor_rate');
             const postProcessLaborHours = getFloatValue('post_process_labor_hours');
             const profitMarginPercent = getFloatValue('profit_margin_percent');
-            const salesTaxRatePercent = getFloatValue('sales_tax_rate_percent'); // NEW
+            const salesTaxRatePercent = getFloatValue('sales_tax_rate_percent');
 
             // --- Enhanced Validation: Check required fields and list missing ones ---
             const requiredFields = [
@@ -277,7 +280,7 @@
                 { id: 'print_time_hours', name: 'Print Time (Hours)' },
                 { id: 'hourly_labor_rate', name: 'Labor Rate' },
                 { id: 'post_process_labor_hours', name: 'Post-Process Labor (Hours)' },
-                { id: 'profit_margin_percent', name: 'Profit Margin (%)' }
+                // profit_margin_percent removed from requiredFields to make it optional
             ];
 
             let missingFields = [];
@@ -286,31 +289,27 @@
                 const value = getFloatValue(field.id);
                 const rawValue = document.getElementById(field.id).value.trim();
 
-                // Special handling for Profit Margin: Must be >= 0 (can be zero, but not negative)
-                if (field.id === 'profit_margin_percent') {
-                    // Check for empty string or a negative number
-                    if (rawValue === "" || value < 0) {
-                        missingFields.push(field.name);
-                    }
-                }
-                // Rule for all other required fields: Must be strictly > 0
-                else {
-                    // Check for empty string, zero, or negative
-                    if (rawValue === "" || value <= 0) {
-                        missingFields.push(field.name);
-                    }
+                // Rule for required fields: Must be strictly > 0 or have non-empty string value
+                if (rawValue === "" || value <= 0) { 
+                    missingFields.push(field.name);
                 }
             });
+            
+            // Non-negative validation for optional profit margin
+            const profitMarginRawValue = document.getElementById('profit_margin_percent').value.trim();
+            if (profitMarginRawValue !== "" && profitMarginPercent < 0) {
+                 missingFields.push('Profit Margin (%) (Cannot be negative)');
+            }
 
-            // Validation for Sales Tax Rate (must be >= 0 if entered, but 0 is okay)
+            // Non-negative validation for optional sales tax rate
             const salesTaxRawValue = document.getElementById('sales_tax_rate_percent').value.trim();
             if (salesTaxRawValue !== "" && salesTaxRatePercent < 0) {
                  missingFields.push('Sales Tax Rate (%) (Cannot be negative)');
             }
-
+            
             if (missingFields.length > 0) {
                 const missingList = missingFields.map(name => `<li class="ml-4">- ${name}</li>`).join('');
-
+                
                 document.getElementById('results-container').innerHTML = `
                     <div class="bg-red-800 text-white p-4 rounded-lg font-medium shadow-md">
                         <p class="font-bold mb-2">Calculation Blocked:</p>
@@ -321,7 +320,7 @@
                 document.getElementById('results-container').classList.remove('hidden');
                 return;
             }
-
+            
             // --- 2. Calculate Overhead Rate Components ---
             const depreciationCostPerHour = machineLifeHours > 0 ? machinePurchaseCost / machineLifeHours : 0;
             const utilityCostPerHour = (maxPowerConsumptionWatts / 1000) * costPerKWH;
@@ -331,18 +330,21 @@
 
             // --- 3. Calculate Individual Cost Components ---
             const spoolWeightGrams = spoolWeightKg * 1000;
-            const costPerGram = spoolWeightGrams > 0 ? spoolCostTotal / spoolWeightGrams : 0;
+            const costPerGram = spoolWeightGrams > 0 ? spoolCostTotal / spoolWeightGrams : 0; 
             const materialCost = filamentWeightG * costPerGram;
-
-            const printerUtilityCost = depreciationCost + utilityCost;
+            
+            const printerUtilityCost = depreciationCost + utilityCost; 
             const laborCost = postProcessLaborHours * hourlyLaborRate;
-
+            
             // --- 4. Calculate Total Production Cost (Cost of Goods Sold) ---
             const productionCost = materialCost + printerUtilityCost + laborCost;
-
+            
             // --- 5. Calculate Final Price with Profit & Tax ---
             const profitMarginFactor = 1 + (profitMarginPercent / 100);
             const priceBeforeTax = productionCost * profitMarginFactor;
+
+            // Calculation of profit amount for display
+            const profitAmount = priceBeforeTax - productionCost;
 
             const salesTaxFactor = salesTaxRatePercent / 100;
             const salesTaxAmount = priceBeforeTax * salesTaxFactor;
@@ -350,7 +352,7 @@
             const priceIncludingTax = priceBeforeTax + salesTaxAmount;
 
             // --- 6. Display Results ---
-
+            
             const formatCurrency = (amount) => {
                 return new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -359,7 +361,7 @@
                     maximumFractionDigits: currencyCode === 'JPY' ? 0 : 2,
                 }).format(amount);
             };
-
+            
             document.getElementById('results-container').classList.remove('hidden');
             document.getElementById('results-container').innerHTML = `
                 <h2 class="text-dark-text-primary font-bold text-xl">Cost Breakdown</h2>
@@ -367,7 +369,7 @@
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div class="font-semibold text-dark-text-secondary">Material Cost:</div>
                     <div class="text-right font-medium text-accent-green">${formatCurrency(materialCost)}</div>
-
+                    
                     <div class="font-semibold text-dark-text-secondary pl-4 border-l-2 border-gray-700"> - Depreciation Cost:</div>
                     <div class="text-right text-dark-text-secondary">${formatCurrency(depreciationCost)}</div>
 
@@ -376,7 +378,7 @@
 
                     <div class="font-semibold text-dark-text-secondary pt-2 border-t border-gray-700">Total Machine & Utility:</div>
                     <div class="text-right font-medium text-accent-green pt-2 border-t border-gray-700">${formatCurrency(printerUtilityCost)}</div>
-
+                    
                     <div class="font-semibold text-dark-text-secondary">Labor Cost:</div>
                     <div class="text-right font-medium text-accent-green">${formatCurrency(laborCost)}</div>
                 </div>
@@ -391,7 +393,7 @@
                     <div class="text-lg font-bold text-dark-text-primary">Profit Amount (${profitMarginPercent}%):</div>
                     <div class="text-lg font-extrabold text-accent-orange">${formatCurrency(profitAmount)}</div>
                 </div>
-
+                
                 <!-- Price Before Tax -->
                 <div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
                     <div class="text-lg font-bold text-dark-text-primary">Price (Before Tax):</div>
@@ -419,7 +421,7 @@
         });
 
         // Run display and calculation on load with default values
-        window.onload = updateCurrencyDisplay;
+        window.onload = updateCurrencyDisplay; 
     </script>
 </body>
 </html>
