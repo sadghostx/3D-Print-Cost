@@ -286,12 +286,14 @@
             const postProcessLaborHours = getFloatValue('post_process_labor_hours');
             const profitMarginPercent = getFloatValue('profit_margin_percent');
 
-            // --- Basic Validation (Only checking CRITICAL fields for the print to exist) ---
-            if (spoolCostTotal <= 0 || spoolWeightKg <= 0 || filamentWeightG <= 0 || printTimeHours <= 0) {
-                 // Enhanced error message for clarity and themed
+            // --- Basic Validation: Ensure all (Required) fields have positive values ---
+            // If any of the seven required fields are empty (which evaluates to 0 via getFloatValue) or negative, the calculation is blocked.
+            if (spoolCostTotal <= 0 || spoolWeightKg <= 0 || filamentWeightG <= 0 || printTimeHours <= 0 || hourlyLaborRate <= 0 || postProcessLaborHours <= 0 || profitMarginPercent <= 0) {
+
                 document.getElementById('results-container').innerHTML = `
                     <div class="bg-red-800 text-white p-4 rounded-lg font-medium shadow-md">
-                        Please ensure all inputs in the **Material & Print Time** section are valid positive numbers.
+                        <p class="font-bold mb-2">Calculation Blocked:</p>
+                        <p>Please ensure all fields marked **(Required)** contain positive, non-zero values to proceed.</p>
                     </div>`;
                 document.getElementById('results-container').classList.remove('hidden');
                 return;
@@ -357,4 +359,3 @@
     </script>
 </body>
 </html>
-
