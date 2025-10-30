@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Cost Calculator</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind for Inter font and custom colors --><script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        // Dark theme base colors
+                        'dark-bg-1': '#1c1c28', // Deeper background, like the dashboard behind the laptop
+                        'dark-bg-2': '#272737', // Card background, slightly lighter
+                        'dark-bg-3': '#34344a', // Even lighter for active/hover states or secondary cards
+                        'dark-text-primary': '#e0e0e0', // Light text for dark background
+                        'dark-text-secondary': '#a0a0b0', // Subtler text
+
+                        // Accent colors from the dashboard image
+                        'accent-green': '#32cd32', // Lime green for "Paid" bar
+                        'accent-purple': '#8a4af3', // A vibrant purple from item cards
+                        'accent-orange': '#ffa500', // A soft orange/yellow from the "Credits" bar
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ensuring Inter font is used */
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for dark theme, if needed */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #272737;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a6e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a5a7e;
+        }
+
+        /* Define the professional input field style */
+        .input-field {
+            /* Applying Tailwind classes for clean, light-mode styling */
+            /* Using a slightly different focus color for consistency and modern feel */
+            border-radius: 0.5rem; /* rounded-lg */
+            background-color: #ffffff; /* Changed to WHITE */
+            border-width: 1px;
+            border-color: theme('colors.gray.400'); /* Lighter border for white background */
+            padding: 0.5rem; /* p-2 */
+            color: #000000; /* IMPORTANT: Text is set to BLACK for maximum contrast against the white background. */
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            width: 100%;
+            margin-top: 0.25rem; /* mt-1 */
+        }
+        /* Style for Placeholder Text (for better visibility before input) */
+        .input-field::placeholder {
+            color: theme('colors.gray.600'); /* Darker gray for better visibility of the hint on white background */
+            opacity: 1; /* Ensure full opacity */
+        }
+
+        .input-field:focus {
+            /* Use a clean accent on focus */
+            outline: none;
+            border-color: theme('colors.accent-green'); /* focus:border-accent-green */
+            box-shadow: 0 0 0 1px theme('colors.accent-green'); /* focus:ring-accent-green */
+        }
+        /* Re-styling the select element focus to match inputs */
+        #currency_select:focus {
+            outline: none;
+            border-color: theme('colors.accent-green');
+            box-shadow: 0 0 0 1px theme('colors.accent-green');
+        }
+    </style>
+</head>
+<body class="bg-dark-bg-1 min-h-screen p-4 flex items-center justify-center text-dark-text-primary">
+
+    <div class="w-full max-w-lg bg-dark-bg-2 shadow-2xl rounded-xl p-6 md:p-8 space-y-8">
+        <h1 class="text-3xl font-extrabold text-white text-center border-b border-dark-bg-3 pb-3">
+            3D Print Cost Calculator
+        </h1>
+
+        <!-- Currency Selector Card --><div class="bg-dark-bg-3 p-5 rounded-xl shadow-inner-sm border border-gray-700">
+            <h2 class="text-dark-text-primary font-bold text-lg mb-4">Select Currency</h2>
+            <label for="currency_select" class="block">
+                <!-- Select element uses white background and black text --><select id="currency_select" class="mt-1 block w-full rounded-lg bg-white border border-gray-400 shadow-sm p-2 text-black focus:ring-accent-green focus:border-accent-green">
+                    <option value="USD" selected>US Dollar ($)</option>
+                    <option value="EUR">Euro (€)</option>
+                    <option value="GBP">British Pound (£)</option>
+                    <option value="JPY">Japanese Yen (¥)</option>
+                    <option value="AUD">Australian Dollar (A$)</option>
+                </select>
+            </label>
+        </div>
+
+        <!-- Input Fields Card --><div class="bg-dark-bg-3 p-5 rounded-xl shadow-inner-sm border border-gray-700 space-y-4">
+            <!-- Input Group: Material Costs --><h2 class="text-accent-purple font-bold text-lg">Material & Print Time</h2>
+
+            <div class="grid grid-cols-2 gap-4">
+                <label for="spool_cost_total" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Spool Cost (Total <span id="label-spool-cost">($)</span>)</span>
+                    <input type="number" id="spool_cost_total" class="input-field" placeholder="(Required)">
+                </label>
+
+                <label for="spool_weight_kg" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Spool Weight (kg)</span>
+                    <input type="number" id="spool_weight_kg" class="input-field" placeholder="(Required)">
+                </label>
+
+                <label for="filament_weight_g" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Filament Used (g)</span>
+                    <input type="number" id="filament_weight_g" class="input-field" placeholder="(Required)">
+                </label>
+
+                <label for="print_time_hours" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Print Time (Hours)</span>
+                    <input type="number" id="print_time_hours" class="input-field" placeholder="(Required)">
+                </label>
+            </div>
+
+            <!-- Input Group: Machine Cost Breakdown --><h2 class="text-accent-purple font-bold text-lg mt-6 pt-4 border-t border-gray-700">
+                Machine Depreciation & Utility Costs
+                <span class="text-dark-text-secondary text-sm font-normal">(Optional)</span>
+            </h2>
+
+            <div class="grid grid-cols-2 gap-4">
+                <label for="machine_purchase_cost" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Machine Cost (Total <span id="label-machine-cost">($)</span>)</span>
+                    <input type="number" id="machine_purchase_cost" class="input-field" placeholder="(Optional)">
+                </label>
+
+                <label for="machine_life_hours" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Machine Life (Hours)</span>
+                    <input type="number" id="machine_life_hours" class="input-field" placeholder="(Optional)">
+                </label>
+
+                <label for="max_power_consumption_watts" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Max Power Consumption (Watts)</span>
+                    <input type="number" id="max_power_consumption_watts" class="input-field" placeholder="(Optional)">
+                </label>
+
+                <label for="cost_per_kwh" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Electricity Cost (<span id="label-kwh-cost">$/kWh</span>)</span>
+                    <input type="number" id="cost_per_kwh" class="input-field" placeholder="(Optional)">
+                </label>
+            </div>
+
+            <!-- Input Group: Labor & Profit --><h2 class="text-accent-purple font-bold text-lg mt-6 pt-4 border-t border-gray-700">Labor & Profit</h2>
+
+            <div class="grid grid-cols-2 gap-4">
+                <label for="hourly_labor_rate" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Labor Rate (<span id="label-labor-rate">$/hr</span>)</span>
+                    <input type="number" id="hourly_labor_rate" class="input-field" placeholder="(Required)">
+                </label>
+
+                <label for="post_process_labor_hours" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Post-Process Labor (Hours)</span>
+                    <input type="number" id="post_process_labor_hours" class="input-field" placeholder="(Required)">
+                </label>
+
+                <label for="profit_margin_percent" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Profit Margin (%)</span>
+                    <input type="number" id="profit_margin_percent" class="input-field" placeholder="(Required)">
+                </label>
+
+                <div class="block"></div>
+            </div>
+        </div>
+
+        <button onclick="calculateCost()" class="w-full py-3 bg-accent-green text-dark-bg-1 font-bold rounded-xl shadow-lg hover:bg-green-500 transition duration-150 transform hover:scale-[1.01]">
+            Calculate Cost Per Item
+        </button>
+
+        <!-- Results Area Card --><div id="results-container" class="bg-dark-bg-3 p-5 rounded-xl shadow-inner-sm border border-gray-700 space-y-4 hidden">
+            <h2 class="text-dark-text-primary font-bold text-xl">Cost Breakdown</h2>
+
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="font-semibold text-dark-text-secondary">Material Cost:</div>
+                <div id="result-material-cost" class="text-right font-medium text-accent-green"></div>
+
+                <div class="font-semibold text-dark-text-secondary pl-4 border-l-2 border-gray-700"> - Depreciation Cost:</div>
+                <div id="result-depreciation-cost" class="text-right text-dark-text-secondary"></div>
+
+                <div class="font-semibold text-dark-text-secondary pl-4 border-l-2 border-gray-700"> - Utility/Electricity Cost:</div>
+                <div id="result-utility-cost" class="text-right text-dark-text-secondary"></div>
+
+                <div class="font-semibold text-dark-text-secondary pt-2 border-t border-gray-700">Total Machine & Utility:</div>
+                <div id="result-machine-cost" class="text-right font-medium text-accent-green pt-2 border-t border-gray-700"></div>
+
+                <div class="font-semibold text-dark-text-secondary">Labor Cost:</div>
+                <div id="result-labor-cost" class="text-right font-medium text-accent-green"></div>
+            </div>
+
+            <!-- Total Production Cost --><div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
+                <div class="text-lg font-bold text-dark-text-primary">Total Production Cost (COG):</div>
+                <div id="result-production-cost" class="text-lg font-extrabold text-white"></div>
+            </div>
+
+            <!-- Profit --><div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
+                <div class="text-lg font-bold text-dark-text-primary">Profit Margin:</div>
+                <div id="result-profit" class="text-lg font-extrabold text-accent-orange"></div>
+            </div>
+
+            <!-- Final Price --><div class="flex justify-between items-center bg-accent-purple text-white p-4 rounded-xl shadow-lg">
+                <div class="text-2xl font-bold">FINAL PRICE PER ITEM:</div>
+                <div id="result-final-price" class="text-2xl font-extrabold"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Helper function to safely get numeric value from input
+        function getFloatValue(id) {
+            const element = document.getElementById(id);
+            // Use parseFloat and default to 0 if invalid or empty
+            return parseFloat(element.value) || 0;
+        }
+
+        // Map for currency symbols and typical placeholder formatting
+        const currencySymbols = {
+            'USD': { symbol: '$', kwh: '$/kWh', hr: '$/hr' },
+            'EUR': { symbol: '€', kwh: '€/kWh', hr: '€/hr' },
+            'GBP': { symbol: '£', kwh: '£/kWh', hr: '£/hr' },
+            'JPY': { symbol: '¥', kwh: '¥/kWh', hr: '¥/hr' },
+            'AUD': { symbol: 'A$', kwh: 'A$/kWh', hr: 'A$/hr' },
+        };
+
+        // Function to update input labels and placeholders based on selected currency
+        function updateCurrencyDisplay() {
+            const currencyCode = document.getElementById('currency_select').value;
+            const symbols = currencySymbols[currencyCode];
+
+            if (!symbols) return; // Fallback if currency not found
+
+            // 1. Update Labels (spans inside the <label> tags)
+            document.getElementById('label-spool-cost').textContent = `(${symbols.symbol})`;
+            document.getElementById('label-machine-cost').textContent = `(${symbols.symbol})`;
+            document.getElementById('label-kwh-cost').textContent = `${symbols.kwh}`;
+            document.getElementById('label-labor-rate').textContent = `${symbols.hr}`;
+
+            // 2. Update Input Placeholders: Removed suggested numbers, only showing required/optional status
+            document.getElementById('spool_cost_total').placeholder = `(Required)`;
+            document.getElementById('spool_weight_kg').placeholder = `(Required)`;
+            document.getElementById('filament_weight_g').placeholder = `(Required)`;
+            document.getElementById('print_time_hours').placeholder = `(Required)`;
+            document.getElementById('hourly_labor_rate').placeholder = `(Required)`;
+            document.getElementById('post_process_labor_hours').placeholder = `(Required)`;
+            document.getElementById('profit_margin_percent').placeholder = `(Required)`;
+
+            document.getElementById('machine_purchase_cost').placeholder = `(Optional)`;
+            document.getElementById('machine_life_hours').placeholder = `(Optional)`;
+            document.getElementById('max_power_consumption_watts').placeholder = `(Optional)`;
+            document.getElementById('cost_per_kwh').placeholder = `(Optional)`;
+
+
+            // 3. Recalculate costs to update all result fields with the new currency format
+            calculateCost();
+        }
+
+        // Main calculation function
+        function calculateCost() {
+            // --- 1. Get Input Values ---
+            const currencyCode = document.getElementById('currency_select').value;
+
+            // Because values are empty, getFloatValue will correctly return 0 for these initially
+            const spoolCostTotal = getFloatValue('spool_cost_total');
+            const spoolWeightKg = getFloatValue('spool_weight_kg');
+            const filamentWeightG = getFloatValue('filament_weight_g');
+            const printTimeHours = getFloatValue('print_time_hours');
+
+            const machinePurchaseCost = getFloatValue('machine_purchase_cost');
+            const machineLifeHours = getFloatValue('machine_life_hours');
+            const maxPowerConsumptionWatts = getFloatValue('max_power_consumption_watts');
+            const costPerKWH = getFloatValue('cost_per_kwh');
+
+            const hourlyLaborRate = getFloatValue('hourly_labor_rate');
+            const postProcessLaborHours = getFloatValue('post_process_labor_hours');
+            const profitMarginPercent = getFloatValue('profit_margin_percent');
+
+            // --- Basic Validation (Only checking CRITICAL fields for the print to exist) ---
+            if (spoolCostTotal <= 0 || spoolWeightKg <= 0 || filamentWeightG <= 0 || printTimeHours <= 0) {
+                 // Enhanced error message for clarity and themed
+                document.getElementById('results-container').innerHTML = `
+                    <div class="bg-red-800 text-white p-4 rounded-lg font-medium shadow-md">
+                        Please ensure all inputs in the **Material & Print Time** section are valid positive numbers.
+                    </div>`;
+                document.getElementById('results-container').classList.remove('hidden');
+                return;
+            }
+
+            // --- 2. Calculate Overhead Rate Components ---
+            // Depreciation is calculated only if machine life is provided (> 0), otherwise it's 0.
+            const depreciationCostPerHour = machineLifeHours > 0 ? machinePurchaseCost / machineLifeHours : 0;
+            // Utility cost is naturally 0 if power consumption or KWH cost are 0.
+            const utilityCostPerHour = (maxPowerConsumptionWatts / 1000) * costPerKWH;
+
+            const depreciationCost = depreciationCostPerHour * printTimeHours;
+            const utilityCost = utilityCostPerHour * printTimeHours;
+
+            // --- 3. Calculate Individual Cost Components ---
+            const spoolWeightGrams = spoolWeightKg * 1000;
+            const costPerGram = spoolWeightGrams > 0 ? spoolCostTotal / spoolWeightGrams : 0;
+            const materialCost = filamentWeightG * costPerGram;
+
+            const printerUtilityCost = depreciationCost + utilityCost;
+            // Labor cost is naturally 0 if labor rate or hours are 0.
+            const laborCost = postProcessLaborHours * hourlyLaborRate;
+
+            // --- 4. Calculate Total Production Cost (Cost of Goods Sold) ---
+            const productionCost = materialCost + printerUtilityCost + laborCost;
+
+            // --- 5. Calculate Final Price with Profit ---
+            const profitMarginFactor = 1 + (profitMarginPercent / 100);
+            const finalPrice = productionCost * profitMarginFactor;
+            const profitAmount = finalPrice - productionCost;
+
+            // --- 6. Display Results ---
+
+            const formatCurrency = (amount) => {
+                return new Intl.NumberFormat('en-US', { // Use 'en-US' locale for common formatting, currency code for symbol
+                    style: 'currency',
+                    currency: currencyCode,
+                    minimumFractionDigits: currencyCode === 'JPY' ? 0 : 2,
+                    maximumFractionDigits: currencyCode === 'JPY' ? 0 : 2,
+                }).format(amount);
+            };
+
+            document.getElementById('result-material-cost').textContent = formatCurrency(materialCost);
+            document.getElementById('result-depreciation-cost').textContent = formatCurrency(depreciationCost);
+            document.getElementById('result-utility-cost').textContent = formatCurrency(utilityCost);
+            document.getElementById('result-machine-cost').textContent = formatCurrency(printerUtilityCost);
+            document.getElementById('result-labor-cost').textContent = formatCurrency(laborCost);
+            document.getElementById('result-production-cost').textContent = formatCurrency(productionCost);
+            document.getElementById('result-profit').textContent = formatCurrency(profitAmount);
+            document.getElementById('result-final-price').textContent = formatCurrency(finalPrice);
+
+            document.getElementById('results-container').classList.remove('hidden');
+        }
+
+        document.getElementById('currency_select').addEventListener('change', updateCurrencyDisplay);
+        // Add event listeners to all input fields to trigger recalculation on change
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('input', calculateCost);
+        });
+
+        // Run display and calculation on load with default values
+        window.onload = updateCurrencyDisplay;
+    </script>
+</body>
+</html>
+
