@@ -173,88 +173,28 @@
                 
                 <div class="block"></div>
             </div>
+
+            <!-- Input Group: Sales Tax -->
+            <h2 class="text-accent-purple font-bold text-lg mt-6 pt-4 border-t border-gray-700">
+                Sales Tax
+                <span class="text-dark-text-secondary text-sm font-normal">(Optional)</span>
+            </h2>
+            <div class="grid grid-cols-2 gap-4">
+                <label for="sales_tax_rate_percent" class="block">
+                    <span class="text-sm font-medium text-dark-text-secondary">Sales Tax Rate (%)</span>
+                    <input type="number" id="sales_tax_rate_percent" class="input-field" placeholder="(Optional, default 0)">
+                </label>
+                <div class="block"></div>
+            </div>
         </div>
 
         <button onclick="calculateCost()" class="w-full py-3 bg-accent-green text-dark-bg-1 font-bold rounded-xl shadow-lg hover:bg-green-500 transition duration-150 transform hover:scale-[1.01]">
             Calculate Cost Per Item
         </button>
 
-        <!-- Results Area Card --><div id="results-container" class="bg-dark-bg-3 p-5 rounded-xl shadow-inner-sm border border-gray-700 space-y-4 hidden">
-            <h2 class="text-dark-text-primary font-bold text-xl">Cost Breakdown</h2>
-
-            <div class="grid grid-cols-2 gap-3 text-sm">
-                <div class="font-semibold text-dark-text-secondary">Material Cost:</div>
-                <div id="result-material-cost" class="text-right font-medium text-accent-green"></div>
-                
-                <div class="font-semibold text-dark-text-secondary pl-4 border-l-2 border-gray-700"> - Depreciation Cost:</div>
-                <div id="result-depreciation-cost" class="text-right text-dark-text-secondary"></div>
-
-                <div class="font-semibold text-dark-text-secondary pl-4 border-l-2 border-gray-700"> - Utility/Electricity Cost:</div>
-                <div id="result-utility-cost" class="text-right text-dark-text-secondary"></div>
-
-                <div class="font-semibold text-dark-text-secondary pt-2 border-t border-gray-700">Total Machine & Utility:</div>
-                <div id="result-machine-cost" class="text-right font-medium text-accent-green pt-2 border-t border-gray-700"></div>
-                
-                <div class="font-semibold text-dark-text-secondary">Labor Cost:</div>
-                <div id="result-labor-cost" class="text-right font-medium text-accent-green"></div>
-            </div>
-
-            <!-- Total Production Cost --><div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
-                <div class="text-lg font-bold text-dark-text-primary">Total Production Cost (COG):</div>
-                <div id="result-production-cost" class="text-lg font-extrabold text-white"></div>
-            </div>
-
-            <!-- Profit --><div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
-                <div class="text-lg font-bold text-dark-text-primary">Profit Margin:</div>
-                <div id="result-profit" class="text-lg font-extrabold text-accent-orange"></div>
-            </div>
-
-            <!-- Final Price --><div class="flex justify-between items-center bg-accent-purple text-white p-4 rounded-xl shadow-lg">
-                <div class="text-2xl font-bold">FINAL PRICE PER ITEM:</div>
-                <div id="result-final-price" class="text-2xl font-extrabold"></div>
-            </div>
-        </div>
-        
-    </div>
-
-    <script>
-        // Helper function to safely get numeric value from input
-        function getFloatValue(id) {
-            const element = document.getElementById(id);
-            // Use parseFloat and default to 0 if invalid or empty
-            return parseFloat(element.value) || 0;
-        }
-
-        // Map for currency symbols and typical placeholder formatting
-        const currencySymbols = {
-            'USD': { symbol: '$', kwh: '$/kWh', hr: '$/hr' },
-            'EUR': { symbol: '€', kwh: '€/kWh', hr: '€/hr' },
-            'GBP': { symbol: '£', kwh: '£/kWh', hr: '£/hr' },
-            'JPY': { symbol: '¥', kwh: '¥/kWh', hr: '¥/hr' },
-            'AUD': { symbol: 'A$', kwh: 'A$/kWh', hr: 'A$/hr' },
-        };
-
-        // Function to update input labels and placeholders based on selected currency
-        function updateCurrencyDisplay() {
-            const currencyCode = document.getElementById('currency_select').value;
-            const symbols = currencySymbols[currencyCode];
-
-            if (!symbols) return; // Fallback if currency not found
-
-            // 1. Update Labels (spans inside the <label> tags)
-            document.getElementById('label-spool-cost').textContent = `(${symbols.symbol})`;
-            document.getElementById('label-machine-cost').textContent = `(${symbols.symbol})`;
-            document.getElementById('label-kwh-cost').textContent = `${symbols.kwh}`;
-            document.getElementById('label-labor-rate').textContent = `${symbols.hr}`;
-
-            // 2. Update Input Placeholders
-            document.getElementById('spool_cost_total').placeholder = `(Required)`;
-            document.getElementById('spool_weight_kg').placeholder = `(Required)`;
-            document.getElementById('filament_weight_g').placeholder = `(Required)`;
-            document.getElementById('print_time_hours').placeholder = `(Required)`;
-            document.getElementById('hourly_labor_rate').placeholder = `(Required)`;
-            document.getElementById('post_process_labor_hours').placeholder = `(Required)`;
-            document.getElementById('profit_margin_percent').placeholder = `(Required)`;
+        <!-- Results Area Card (Content is dynamically generated in JS) --><div id="results-container" class="bg-dark-bg-3 p-5 rounded-xl shadow-inner-sm border border-gray-700 space-y-4 hidden">
+            <!-- Content will be injected here by calculateCost() -->
+            document.getElementById('sales_tax_rate_percent').placeholder = `(Optional, default 0)`;
             
             document.getElementById('machine_purchase_cost').placeholder = `(Optional)`;
             document.getElementById('machine_life_hours').placeholder = `(Optional)`;
@@ -285,6 +225,7 @@
             const hourlyLaborRate = getFloatValue('hourly_labor_rate');
             const postProcessLaborHours = getFloatValue('post_process_labor_hours');
             const profitMarginPercent = getFloatValue('profit_margin_percent');
+            const salesTaxRatePercent = getFloatValue('sales_tax_rate_percent'); // NEW
 
             // --- Enhanced Validation: Check required fields and list missing ones ---
             const requiredFields = [
@@ -319,6 +260,12 @@
                 }
             });
             
+            // Validation for Sales Tax Rate (must be >= 0 if entered, but 0 is okay)
+            const salesTaxRawValue = document.getElementById('sales_tax_rate_percent').value.trim();
+            if (salesTaxRawValue !== "" && salesTaxRatePercent < 0) {
+                 missingFields.push('Sales Tax Rate (%) (Cannot be negative)');
+            }
+            
             if (missingFields.length > 0) {
                 const missingList = missingFields.map(name => `<li class="ml-4">- ${name}</li>`).join('');
                 
@@ -334,9 +281,7 @@
             }
             
             // --- 2. Calculate Overhead Rate Components ---
-            // Depreciation is calculated only if machine life is provided (> 0), otherwise it's 0.
             const depreciationCostPerHour = machineLifeHours > 0 ? machinePurchaseCost / machineLifeHours : 0;
-            // Utility cost is naturally 0 if power consumption or KWH cost are 0.
             const utilityCostPerHour = (maxPowerConsumptionWatts / 1000) * costPerKWH;
 
             const depreciationCost = depreciationCostPerHour * printTimeHours;
@@ -344,26 +289,28 @@
 
             // --- 3. Calculate Individual Cost Components ---
             const spoolWeightGrams = spoolWeightKg * 1000;
-            // This calculation is now safe because spoolWeightKg is validated to be > 0
             const costPerGram = spoolWeightGrams > 0 ? spoolCostTotal / spoolWeightGrams : 0; 
             const materialCost = filamentWeightG * costPerGram;
             
             const printerUtilityCost = depreciationCost + utilityCost; 
-            // Labor cost is now safe because rate and hours are validated to be > 0
             const laborCost = postProcessLaborHours * hourlyLaborRate;
             
             // --- 4. Calculate Total Production Cost (Cost of Goods Sold) ---
             const productionCost = materialCost + printerUtilityCost + laborCost;
             
-            // --- 5. Calculate Final Price with Profit ---
+            // --- 5. Calculate Final Price with Profit & Tax ---
             const profitMarginFactor = 1 + (profitMarginPercent / 100);
-            const finalPrice = productionCost * profitMarginFactor;
-            const profitAmount = finalPrice - productionCost;
+            const priceBeforeTax = productionCost * profitMarginFactor;
+
+            const salesTaxFactor = salesTaxRatePercent / 100;
+            const salesTaxAmount = priceBeforeTax * salesTaxFactor;
+
+            const priceIncludingTax = priceBeforeTax + salesTaxAmount;
 
             // --- 6. Display Results ---
             
             const formatCurrency = (amount) => {
-                return new Intl.NumberFormat('en-US', { // Use 'en-US' locale for common formatting, currency code for symbol
+                return new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: currencyCode,
                     minimumFractionDigits: currencyCode === 'JPY' ? 0 : 2,
@@ -377,34 +324,48 @@
 
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div class="font-semibold text-dark-text-secondary">Material Cost:</div>
-                    <div id="result-material-cost" class="text-right font-medium text-accent-green">${formatCurrency(materialCost)}</div>
+                    <div class="text-right font-medium text-accent-green">${formatCurrency(materialCost)}</div>
                     
                     <div class="font-semibold text-dark-text-secondary pl-4 border-l-2 border-gray-700"> - Depreciation Cost:</div>
-                    <div id="result-depreciation-cost" class="text-right text-dark-text-secondary">${formatCurrency(depreciationCost)}</div>
+                    <div class="text-right text-dark-text-secondary">${formatCurrency(depreciationCost)}</div>
 
                     <div class="font-semibold text-dark-text-secondary pl-4 border-l-2 border-gray-700"> - Utility/Electricity Cost:</div>
-                    <div id="result-utility-cost" class="text-right text-dark-text-secondary">${formatCurrency(utilityCost)}</div>
+                    <div class="text-right text-dark-text-secondary">${formatCurrency(utilityCost)}</div>
 
                     <div class="font-semibold text-dark-text-secondary pt-2 border-t border-gray-700">Total Machine & Utility:</div>
-                    <div id="result-machine-cost" class="text-right font-medium text-accent-green pt-2 border-t border-gray-700">${formatCurrency(printerUtilityCost)}</div>
+                    <div class="text-right font-medium text-accent-green pt-2 border-t border-gray-700">${formatCurrency(printerUtilityCost)}</div>
                     
                     <div class="font-semibold text-dark-text-secondary">Labor Cost:</div>
-                    <div id="result-labor-cost" class="text-right font-medium text-accent-green">${formatCurrency(laborCost)}</div>
+                    <div class="text-right font-medium text-accent-green">${formatCurrency(laborCost)}</div>
                 </div>
 
-                <!-- Total Production Cost --><div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
+                <!-- Total Production Cost --><div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600 mt-4">
                     <div class="text-lg font-bold text-dark-text-primary">Total Production Cost (COG):</div>
-                    <div id="result-production-cost" class="text-lg font-extrabold text-white">${formatCurrency(productionCost)}</div>
+                    <div class="text-lg font-extrabold text-white">${formatCurrency(productionCost)}</div>
                 </div>
 
-                <!-- Profit --><div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
-                    <div class="text-lg font-bold text-dark-text-primary">Profit Margin:</div>
-                    <div id="result-profit" class="text-lg font-extrabold text-accent-orange">${formatCurrency(profitAmount)}</div>
+                <!-- Profit -->
+                <div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
+                    <div class="text-lg font-bold text-dark-text-primary">Profit Amount (${profitMarginPercent}%):</div>
+                    <div class="text-lg font-extrabold text-accent-orange">${formatCurrency(profitAmount)}</div>
+                </div>
+                
+                <!-- Price Before Tax -->
+                <div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
+                    <div class="text-lg font-bold text-dark-text-primary">Price (Before Tax):</div>
+                    <div class="text-lg font-extrabold text-white">${formatCurrency(priceBeforeTax)}</div>
                 </div>
 
-                <!-- Final Price --><div class="flex justify-between items-center bg-accent-purple text-white p-4 rounded-xl shadow-lg">
-                    <div class="text-2xl font-bold">FINAL PRICE PER ITEM:</div>
-                    <div id="result-final-price" class="text-2xl font-extrabold">${formatCurrency(finalPrice)}</div>
+                <!-- Sales Tax -->
+                <div class="flex justify-between items-center bg-dark-bg-2 p-3 rounded-lg border border-gray-600">
+                    <div class="text-lg font-bold text-dark-text-primary">Sales Tax (${salesTaxRatePercent}%):</div>
+                    <div class="text-lg font-extrabold text-dark-text-secondary">${formatCurrency(salesTaxAmount)}</div>
+                </div>
+
+                <!-- Final Price Including Tax -->
+                <div class="flex justify-between items-center bg-accent-purple text-white p-4 rounded-xl shadow-lg mt-4">
+                    <div class="text-2xl font-bold">FINAL PRICE (Inc. Tax):</div>
+                    <div class="text-2xl font-extrabold">${formatCurrency(priceIncludingTax)}</div>
                 </div>
             `;
         }
